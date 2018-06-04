@@ -63,6 +63,28 @@ return [
             'bucket' => env('AWS_BUCKET'),
         ],
 
+        'rackspace' => [
+            'driver'    => 'rackspace',
+            'username'  => 'your-username',
+            'key'       => 'your-key',
+            'container' => 'your-container',
+            'endpoint'  => 'https://identity.api.rackspacecloud.com/v2.0/',
+            'region'    => 'IAD',
+            'url_type'  => 'publicURL'
+        ],
+
+        'bos' => [
+            'driver' => 'bos',
+            'bucket' => '',
+            'options' => [
+                'credentials' => [
+                    'ak' => 'b62d1ebc5fdf4cc6869a6b8e8fe09e30',
+                    'sk' => '8a78ce2a503144978ebcf3d389ce1baa',
+                ],
+                'endpoint' => 'http://testincar.bj.bcebos.com',
+            ]
+        ],
+
     ],
 
 ];
