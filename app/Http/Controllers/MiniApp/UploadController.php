@@ -12,10 +12,6 @@ use Log;
 
 class UploadController extends Controller
 {
-    private $degree; // 人脸对比结果
-    private $identityCardNum; // 身份证上传后的临时路径
-    private $selfie; // 自拍照上传后的临时路径
-
     private $appId;
     private $appKey;
     private $appSecret;
@@ -69,7 +65,8 @@ class UploadController extends Controller
             // 人脸检测
             $res = $this->detect($realPath);
             if($res == false || $res < 1){
-                return responce(400,'请拍摄本人身份证正面');
+//                return responce(400,'请拍摄本人身份证正面');
+                return responce(400,'没有检测到人脸');
             }
             // 身份证文字识别校验
             $identityPositivePictureInfo = $this->idcard($realPath,'front');
@@ -231,6 +228,7 @@ class UploadController extends Controller
             'licensePicture' => 'required', // 驾驶证图片 id
             'licensePictureCopy' => 'required', // 驾驶证副本图片 id
             'selfie' => 'required', // 自拍照图片 id
+            'token' => 'required', // 自拍照图片 id
         ], [
                 'userName.required' => '姓名传递有误',
                 'identityCardNum.required' => '身份证传递有误',
@@ -240,6 +238,7 @@ class UploadController extends Controller
                 'license.required' => '驾驶证正面图片id传递有误',
                 'licenseback.required' => '驾驶证副本图片id传递有误',
                 'selfie.required' => '用户标识传递有误',
+                'token.required' => 'token传递有误',
             ]
         );
         // 参数有错误 直接返回错误信息
@@ -248,8 +247,8 @@ class UploadController extends Controller
         }
 
         //接收参数
-        $userName = request('userName'); // 用户名
-        $identityCardNum = request('identityCardNum'); // 身份证号码
+//        $userName = request('userName'); // 用户名
+//        $identityCardNum = request('identityCardNum'); // 身份证号码
         $user_id = request('userId'); // 用户id
         $selfie = request('selfie'); // 自拍照图片id
         $identityPositivePicture = request('identityPositivePicture'); // 身份证正面图片 id
@@ -275,22 +274,41 @@ class UploadController extends Controller
         $datas = request()->all(); // 绑定参数到变量
         $datas['status'] = $status;
         $datas['degree'] = $degree;
+        $datas['uid'] = $user_id;
         $datas['identityPositiveInfoJsonStr'] = $identfrontText;
         $datas['identityOppositeInfoJsonStr'] = $identbackText;
         $datas['licenseInfoJsonStr'] = $licenseText;
         $datas['platform'] = 3; // 平台类型 3是小程序
-        // licensePicture
         unset($datas['userId']);
-        dump($datas);
+
+        //{
+        //  "status": 200,
+        //  "message": "成功",
+        //  "debug": null,
+        //  "attachment": {
+        //    "licenseStatus": 11,
+        //    "identityStatus": 13,
+        //    "depositStatus": 1,
+        //    "status": 10
+        //  }
+        //}
 
         $apiUrl = "https://xcx-dev2.mydadao.com/v/user/upload-user-info";
-        $data = curl_post($apiUrl,$datas);
-        dump($data);
+        $resData = curl_post($apiUrl,$datas);
+        $data = json_decode($resData);
 
-        return responce(200,'成功',$datas);
+        if(!$data){
+            Log::error("接口 /v/user/upload-user-info 请求失败".$resData);
+        }
 
+        if($data['status'] == 400){ // 返回失败信息
+            Log::error("接口 /v/user/upload-user-info 返回失败信息".$resData);
+            return responce(400,$data['message']);
+        }
+        if($data['status'] == 200){
+            Log::error("接口 /v/user/upload-user-info 请求成功".$resData);
+            return responce(200,'提交成功',$data['attachment']);
+        }
     }
-
-
 
 }

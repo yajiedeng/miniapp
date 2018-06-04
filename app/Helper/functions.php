@@ -78,14 +78,14 @@ function responce($code='200',$msg='ok',$result='')
 {
     if($result){
         $data = [
-            'code' => (string)$code,
-            'msg'  => (string)$msg,
+            'msg_code' => (string)$code,
+            'message'  => (string)$msg,
             'data' => $result
         ];
     }else{
         $data = [
-            'code' => (string)$code,
-            'msg'  => (string)$msg,
+            'msg_code' => (string)$code,
+            'message'  => (string)$msg,
             'data' => (string)$result
         ];
     }
@@ -111,13 +111,13 @@ function getUrl()
  *  小程序验证用户证件 转存
  * */
 
-function writeImg($imgUrl,$fileName)
+function writeImg($imgContent,$fileName)
 {
     $baidu_bos_url = config('wechat_parameter.bcebos_url');
     //读取图片内容
-    $imgContent = curl_get($baidu_bos_url.$imgUrl);
+//    $imgContent = curl_get($baidu_bos_url.$imgUrl);
     //写入文件
-    $filePath = public_path().'/upload/user/';
+    $filePath = storage_path().'/app/public/';
     $fileName = $fileName.".jpg";
     $path = $filePath.$fileName;
     $ifp = fopen( $path, "wb" );
